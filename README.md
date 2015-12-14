@@ -12,7 +12,6 @@ npm install hyped-swagger-middleware --save
 
 ## Usage
 
-
 ### Example `index.js`
 
 ```js

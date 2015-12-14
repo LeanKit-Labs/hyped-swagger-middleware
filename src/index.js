@@ -1,6 +1,5 @@
 var _ = require( "lodash" );
 var skeemas = require( "skeemas" );
-var swaggerSchema = require( "./index.schema" );
 var path = require( "path" );
 var defaultAccepts = [ "application/json" ];
 var defaultMediaTypes = [ "application/json", "application/hal+json", "application/hal.v1+json" ];
@@ -130,7 +129,7 @@ function prepareCachedResponses( meta, hyped ) {
 		var definitions = {};
 		schemas.forEach( function ( schema ) {
 			_.extend( definitions, schema.definitions );
-			definitions[ schema.id ] = _.omit( schema, [ "definitions", "id" ] );
+			definitions[ schema.id ] = _.omit( schema, [ "definitions", "id", "$schema" ] );
 		} );
 
 		response.tags = tags;
