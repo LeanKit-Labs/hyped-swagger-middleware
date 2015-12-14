@@ -34,6 +34,13 @@ function patchAnyOfNullable( schemaPart ) {
 	} );
 }
 
+var VERB_ORDER = {
+	"GET": 0,
+	"POST": 1,
+	"PUT": 2,
+	"PATCH": 3,
+	"DELETE": 4
+};
 
 function prepareCachedResponses( meta, hyped ) {
 	var versions = {};
@@ -57,53 +64,78 @@ function prepareCachedResponses( meta, hyped ) {
 		var tags = [];
 		var schemas = [];
 
-		Object.keys( links ).forEach( function( key ) {
-			var resource = links[ key ];
+		var resources = _.reduce( links, function ( memo, value, key ) {
 			var keyParts = key.split( ":" );
-			var tag = keyParts[ 0 ];
+			var resource = keyParts[ 0 ];
 			var action = keyParts[ 1 ];
-			var resourceDefinition = hyped.resources[ tag ];
-			var actionDefinition = resourceDefinition.actions[ action ];
-			var parent = resourceDefinition.parent;
-			var docs = actionDefinition.docs || {};
+			memo[ resource ] = memo[ resource ] || [];
+			memo[ resource ].push( _.extend( { name: action }, value ) );
+			return memo;
+		}, {} );
 
-			if ( !_.find( tags, { name: tag } ) && !parent ) {
+
+
+		_.each( resources, function( actions, resource ) {
+			var resourceDefinition = hyped.resources[ resource ];
+			var parent = resourceDefinition.parent;
+
+			if ( !_.find( tags, { name: resource } ) && !parent ) {
 				tags.push( {
-					name: tag,
+					name: resource,
 					description: resourceDefinition.description || ""
 				} );
 			}
 
-			if ( docs.schema ) {
-				schemas.push( patchAnyOfNullable( _.cloneDeep( docs.schema ) ) );
+			if ( resourceDefinition.schemas ) {
+				resourceDefinition.schemas.forEach( function ( schema ) {
+					schemas.push( patchAnyOfNullable( _.cloneDeep( schema ) ) );
+				} );
 			}
 
-			paths[ resource.href ] = paths[ resource.href ] || {};
-			paths[ resource.href ][ resource.method.toLowerCase() ] = {
-				tags: [ parent ? parent : tag ],
-				operationId: key,
-				description: docs.description || "",
-				summary: docs.summary || "",
-				parameters: docs.parameters || [],
-				responses: docs.responses || {
-					default: {
-						description: "No documentation available"
-					}
-				},
-				consumes: docs.consumes || defaultAccepts,
-				produces: docs.produces || defaultMediaTypes
-			};
+			actions.sort( function ( a, b ) {
+				var aLength = a.href.split( "/" ).length;
+				var bLength = b.href.split( "/" ).length;
+				var aVerb = VERB_ORDER[ a.method ];
+				var bVerb = VERB_ORDER[ b.method ];
+
+				if ( aLength === bLength ) {
+					return aVerb - bVerb;
+				}
+
+				return aLength - bLength;
+			} );
+
+			actions.forEach( function ( action ) {
+				var actionDefinition = resourceDefinition.actions[ action.name ];
+				var docs = actionDefinition.docs || {};
+
+				paths[ action.href ] = paths[ action.href ] || {};
+				paths[ action.href ][ action.method.toLowerCase() ] = {
+					tags: [ parent ? parent : resource ],
+					operationId: resource + ":" + action.name,
+					description: docs.description || "",
+					summary: docs.summary || "",
+					parameters: docs.parameters || [],
+					responses: docs.responses || {
+						default: {
+							description: "No documentation available"
+						}
+					},
+					consumes: docs.consumes || defaultAccepts,
+					produces: docs.produces || defaultMediaTypes
+				};
+			} );
 		} );
 
 		var definitions = {};
 		schemas.forEach( function ( schema ) {
-			_.extend( definitions, schema.source.definitions );
-			definitions[ schema.name ] = _.omit( schema.source, [ "definitions", "id" ] );
+			_.extend( definitions, schema.definitions );
+			definitions[ schema.id ] = _.omit( schema, [ "definitions", "id" ] );
 		} );
 
-		response.definitions = definitions;
 		response.tags = tags;
 		response.paths = paths;
+		response.definitions = definitions;
 
 		swaggerValidator.options.breakOnFirstError = true;
 
