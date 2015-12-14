@@ -61,7 +61,7 @@ function prepareCachedResponses( meta, hyped ) {
 
 		var links = hyped.fullOptionModels[ versionKey ]._links;
 		var tags = [];
-		var schemas = [];
+		var schemas = {};
 
 		var resources = _.reduce( links, function ( memo, value, key ) {
 			var keyParts = key.split( ":" );
@@ -71,8 +71,6 @@ function prepareCachedResponses( meta, hyped ) {
 			memo[ resource ].push( _.extend( { name: action }, value ) );
 			return memo;
 		}, {} );
-
-
 
 		_.each( resources, function( actions, resource ) {
 			var resourceDefinition = hyped.resources[ resource ];
@@ -86,8 +84,8 @@ function prepareCachedResponses( meta, hyped ) {
 			}
 
 			if ( resourceDefinition.schemas ) {
-				resourceDefinition.schemas.forEach( function ( schema ) {
-					schemas.push( patchAnyOfNullable( _.cloneDeep( schema ) ) );
+				_.each( resourceDefinition.schemas, function ( schema, key ) {
+					schemas[ key ] = patchAnyOfNullable( _.cloneDeep( schema ) );
 				} );
 			}
 
@@ -127,9 +125,9 @@ function prepareCachedResponses( meta, hyped ) {
 		} );
 
 		var definitions = {};
-		schemas.forEach( function ( schema ) {
+		_.each( schemas, function ( schema, key ) {
 			_.extend( definitions, schema.definitions );
-			definitions[ schema.id ] = _.omit( schema, [ "definitions", "id", "$schema" ] );
+			definitions[ key ] = _.omit( schema, [ "definitions", "id", "$schema" ] );
 		} );
 
 		response.tags = tags;
