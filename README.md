@@ -12,12 +12,10 @@ npm install hyped-swagger-middleware --save
 
 ## Usage
 
-### Example `index.js`
-
 ```js
 // index.js
 var apiMetadata = {
-    apiRoot: "/api",
+    apiRoot: "/",
     version: "1.0.0",
     title: "Hyped API",
     description: "Our api",
@@ -49,16 +47,18 @@ var host = hyped.createHost( autohost, {
 );
 ```
 
-### Running
+
+## Example
+
+Look at the `example` directory to see an example implementation. To run the example:
 
 ```bash
-node index.js
+npm install
+npm run example
 ```
 
-Then in a new terminal window:
-
+Then in a new window:
 ```bash
 curl http://localhost:8800/api/swagger/1/swagger.json
 ```
-
 
