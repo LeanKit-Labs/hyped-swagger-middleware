@@ -45,7 +45,8 @@ var middleware = function( meta, hyped ) {
 			paths[ resource.href ][ resource.method.toLowerCase() ] = {
 				tags: [ parent ? parent : tag ],
 				operationId: key,
-				description: actionDefinition.description || "",
+				description: docs.description || "",
+				summary: docs.summary || "",
 				parameters: docs.parameters || [],
 				responses: docs.responses || [],
 				consumes: docs.consumes || defaultAccepts,
