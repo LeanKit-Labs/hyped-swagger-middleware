@@ -1,0 +1,10 @@
+global.proxyquire = require( "proxyquire" ).noPreserveCache();
+var chai = require( "chai" );
+chai.use( require( "sinon-chai" ) );
+chai.use( require( "chai-as-promised" ) );
+global.should = chai.should();
+global.when = require( "when" );
+when.sequence = require( "when/sequence" );
+global._ = require( "lodash" );
+global.sinon = require( "sinon" );
+require( "sinon-as-promised" )( global.when.Promise );
