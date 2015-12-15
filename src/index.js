@@ -73,17 +73,18 @@ function prepareCachedResponses( meta, hyped ) {
 
 		_.each( resources, function( actions, resource ) {
 			var resourceDefinition = hyped.resources[ resource ];
+			var resourceDocs = resourceDefinition.docs || {};
 			var parent = resourceDefinition.parent;
 
 			if ( !_.find( tags, { name: resource } ) && !parent ) {
 				tags.push( {
 					name: resource,
-					description: resourceDefinition.description || ""
+					description: resourceDocs.description || ""
 				} );
 			}
 
-			if ( resourceDefinition.schemas ) {
-				_.each( resourceDefinition.schemas, function( schema, key ) {
+			if ( resourceDocs.schemas ) {
+				_.each( resourceDocs.schemas, function( schema, key ) {
 					schemas[ key ] = patchAnyOfNullable( _.cloneDeep( schema ) );
 				} );
 			}

@@ -1,15 +1,18 @@
 module.exports = function( host ) {
 	return {
 		name: "user",
-		schemas: {
-			user: require( "./user.schema.js" ),
-			userList: {
-				type: "object",
-				properties: {
-					users: {
-						type: "array",
-						items: {
-							$ref: "#/definitions/user"
+		docs: {
+			description: "Methods related to users",
+			schemas: {
+				user: require( "./user.schema.js" ),
+				userList: {
+					type: "object",
+					properties: {
+						users: {
+							type: "array",
+							items: {
+								$ref: "#/definitions/user"
+							}
 						}
 					}
 				}
