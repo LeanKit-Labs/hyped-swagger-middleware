@@ -1,4 +1,4 @@
-module.exports = function ( host ) {
+module.exports = function( host ) {
 	return {
 		name: "user",
 		schemas: {
@@ -19,7 +19,7 @@ module.exports = function ( host ) {
 			self: {
 				url: "/user/{id}",
 				method: "GET",
-				handle: function ( env ) {
+				handle: function( env ) {
 					return { id: Number( env.params.id ) };
 				},
 				docs: {
@@ -56,8 +56,8 @@ module.exports = function ( host ) {
 			list: {
 				url: "/user",
 				method: "GET",
-				handle: function () {
-					return []
+				handle: function() {
+					return [];
 				},
 				docs: {
 					summary: "Get a list of users",
@@ -72,5 +72,5 @@ module.exports = function ( host ) {
 				}
 			}
 		}
-	}
-}
+	};
+};

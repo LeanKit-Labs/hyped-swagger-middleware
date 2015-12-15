@@ -7,4 +7,4 @@ module.exports = {
 		username: { type: "string" },
 		fullName: { type: "string" }
 	}
-}
+};

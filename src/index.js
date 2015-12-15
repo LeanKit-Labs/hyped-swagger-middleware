@@ -1,18 +1,17 @@
 var _ = require( "lodash" );
-var skeemas = require( "skeemas" );
 var path = require( "path" );
 var defaultAccepts = [ "application/json" ];
 var defaultMediaTypes = [ "application/json", "application/hal+json", "application/hal.v1+json" ];
 
 var swaggerTools = require( "swagger-tools" );
-var swaggerValidator = swaggerTools.specs.v2.validators[ 'schema.json' ];
+var swaggerValidator = swaggerTools.specs.v2.validators[ "schema.json" ];
 
 function patchAnyOfNullable( schemaPart ) {
 	if ( !_.isPlainObject( schemaPart ) ) {
 		return schemaPart;
 	}
 
-	return _.mapValues( schemaPart, function ( val, key ) {
+	return _.mapValues( schemaPart, function( val, key ) {
 		if ( val && val.hasOwnProperty( "anyOf" ) && val.anyOf.length === 2 ) {
 			var nullObj = _.findIndex( val.anyOf, { type: "null" } );
 			if ( nullObj > -1 ) {
@@ -26,7 +25,7 @@ function patchAnyOfNullable( schemaPart ) {
 		}
 
 		if ( _.isArray( val ) ) {
-			return _.map( val, patchAnyOfNullable);
+			return _.map( val, patchAnyOfNullable );
 		}
 
 		return val;
@@ -34,17 +33,17 @@ function patchAnyOfNullable( schemaPart ) {
 }
 
 var VERB_ORDER = {
-	"GET": 0,
-	"POST": 1,
-	"PUT": 2,
-	"PATCH": 3,
-	"DELETE": 4
+	GET: 0,
+	POST: 1,
+	PUT: 2,
+	PATCH: 3,
+	DELETE: 4
 };
 
 function prepareCachedResponses( meta, hyped ) {
 	var versions = {};
 
-	Object.keys( hyped.fullOptionModels ).forEach( function ( versionKey ) {
+	Object.keys( hyped.fullOptionModels ).forEach( function( versionKey ) {
 		var paths = {};
 		var response = {
 			swagger: "2.0",
@@ -63,7 +62,7 @@ function prepareCachedResponses( meta, hyped ) {
 		var tags = [];
 		var schemas = {};
 
-		var resources = _.reduce( links, function ( memo, value, key ) {
+		var resources = _.reduce( links, function( memo, value, key ) {
 			var keyParts = key.split( ":" );
 			var resource = keyParts[ 0 ];
 			var action = keyParts[ 1 ];
@@ -84,12 +83,12 @@ function prepareCachedResponses( meta, hyped ) {
 			}
 
 			if ( resourceDefinition.schemas ) {
-				_.each( resourceDefinition.schemas, function ( schema, key ) {
+				_.each( resourceDefinition.schemas, function( schema, key ) {
 					schemas[ key ] = patchAnyOfNullable( _.cloneDeep( schema ) );
 				} );
 			}
 
-			actions.sort( function ( a, b ) {
+			actions.sort( function( a, b ) {
 				var aLength = a.href.split( "/" ).length;
 				var bLength = b.href.split( "/" ).length;
 				var aVerb = VERB_ORDER[ a.method ];
@@ -102,7 +101,7 @@ function prepareCachedResponses( meta, hyped ) {
 				return aLength - bLength;
 			} );
 
-			actions.forEach( function ( action ) {
+			actions.forEach( function( action ) {
 				var actionDefinition = resourceDefinition.actions[ action.name ];
 				var docs = actionDefinition.docs || {};
 
@@ -125,7 +124,7 @@ function prepareCachedResponses( meta, hyped ) {
 		} );
 
 		var definitions = {};
-		_.each( schemas, function ( schema, key ) {
+		_.each( schemas, function( schema, key ) {
 			_.extend( definitions, schema.definitions );
 			definitions[ key ] = _.omit( schema, [ "definitions", "id", "$schema" ] );
 		} );
