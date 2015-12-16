@@ -1,19 +1,21 @@
 var path = require( "path" );
 
 var apiMetadata = {
-	apiRoot: "/",
-	version: "1.0.0",
-	title: "Hyped API",
-	description: "Our api",
-	tos: "http://example.com/terms_of_service",
-	contact: {
-		name: "John Doe",
-		email: "john.doe@example.com",
-		url: "http://example.com"
-	},
-	license: {
-		name: "Commercial",
-		url: "http://example.com/license"
+	basePath: "/",
+	info: {
+		version: "1.0.0",
+		title: "Hyped API",
+		description: "Our api",
+		termsOfService: "http://example.com/terms_of_service",
+		contact: {
+			name: "John Doe",
+			email: "john.doe@example.com",
+			url: "http://example.com"
+		},
+		license: {
+			name: "Commercial",
+			url: "http://example.com/license"
+		}
 	}
 };
 

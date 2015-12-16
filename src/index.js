@@ -45,18 +45,15 @@ function prepareCachedResponses( meta, hyped ) {
 
 	Object.keys( hyped.fullOptionModels ).forEach( function( versionKey ) {
 		var paths = {};
-		var response = {
+		var response = _.merge( {
 			swagger: "2.0",
-			basePath: meta.apiRoot,
+			basePath: "/",
 			info: {
-				version: meta.version,
-				title: meta.title || "",
-				description: meta.description || "",
-				termsOfService: meta.tos || "",
-				contact: meta.contact || {},
-				license: meta.license || {}
+				termsOfService: "",
+				contact: {},
+				license: {}
 			}
-		};
+		}, meta );
 
 		var links = hyped.fullOptionModels[ versionKey ]._links;
 		var tags = [];
@@ -111,20 +108,20 @@ function prepareCachedResponses( meta, hyped ) {
 				}
 
 				paths[ action.href ] = paths[ action.href ] || {};
-				paths[ action.href ][ action.method.toLowerCase() ] = {
+				paths[ action.href ][ action.method.toLowerCase() ] = _.extend( {
 					tags: [ parent ? parent : resource ],
 					operationId: resource + ":" + action.name,
-					description: docs.description || "",
-					summary: docs.summary || "",
-					parameters: docs.parameters || [],
-					responses: docs.responses || {
+					description: "",
+					summary: "",
+					parameters: [],
+					responses: {
 						default: {
 							description: "No documentation available"
 						}
 					},
-					consumes: docs.consumes || defaultAccepts,
-					produces: docs.produces || defaultMediaTypes
-				};
+					consumes: defaultAccepts,
+					produces: defaultMediaTypes
+				}, docs );
 			} );
 		} );
 
