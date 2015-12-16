@@ -13,18 +13,18 @@ function processSchema( globalSchemas, schemaPart ) {
 
 	return _.mapValues( schemaPart, function( val, key ) {
 		var foundSchema;
-		if ( val && val.hasOwnProperty( "$ref" ) && val.$ref[0] !== "#" ) {
-			foundSchema = _.findKey( globalSchemas, { id: val.$ref } );
-			if ( foundSchema ) {
-				val.$ref = "#/definitions/" + foundSchema;
-			}
-		}
-
 		if ( val && val.hasOwnProperty( "anyOf" ) && val.anyOf.length === 2 ) {
 			var nullObj = _.findIndex( val.anyOf, { type: "null" } );
 			if ( nullObj > -1 ) {
 				val = val.anyOf[ nullObj === 0 ? 1 : 0 ];
 				val[ "x-isnullable" ] = true;
+			}
+		}
+
+		if ( val && val.hasOwnProperty( "$ref" ) && val.$ref[0] !== "#" ) {
+			foundSchema = _.findKey( globalSchemas, { id: val.$ref } );
+			if ( foundSchema ) {
+				val.$ref = "#/definitions/" + foundSchema;
 			}
 		}
 
@@ -98,7 +98,7 @@ function prepareCachedResponses( meta, hyped ) {
 
 			if ( resourceDocs.schemas ) {
 				_.each( resourceDocs.schemas, function( schema, key ) {
-					schemas[ key ] = processSchema( globalSchemas, _.cloneDeep( schema ) );
+					schemas[ key ] = _.cloneDeep( schema );
 				} );
 			}
 
@@ -147,7 +147,7 @@ function prepareCachedResponses( meta, hyped ) {
 		var definitions = {};
 		applySchemas( definitions, schemas );
 		applySchemas( definitions, globalSchemas );
-		response.definitions = definitions;
+		response.definitions = processSchema( globalSchemas, definitions );
 
 		swaggerValidator.options.breakOnFirstError = true;
 
