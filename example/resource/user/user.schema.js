@@ -5,6 +5,6 @@ module.exports = {
 	properties: {
 		id: { type: "integer" },
 		username: { type: "string" },
-		fullName: { type: "string" }
+		fullName: { $ref: "/user/full-name" }
 	}
 };

@@ -4,7 +4,7 @@
   "description": "Middleware component that hooks into hyped and uses its resources to generate a swagger schema file",
   "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "gulp test",
     "example": "node example"
   },
   "keywords": [

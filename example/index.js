@@ -16,6 +16,20 @@ var apiMetadata = {
 			name: "Commercial",
 			url: "http://example.com/license"
 		}
+	},
+	schemas: {
+		"full-name": {
+			id: "/user/full-name",
+			type: "object",
+			properties: {
+				firstName: {
+					type: "string"
+				},
+				lastName: {
+					type: "string"
+				}
+			}
+		}
 	}
 };
 
