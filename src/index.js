@@ -76,7 +76,7 @@ function prepareCachedResponses( meta, hyped ) {
 			var resourceDocs = resourceDefinition.docs || {};
 			var parent = resourceDefinition.parent;
 
-			if ( !_.find( tags, { name: resource } ) && !parent ) {
+			if ( !_.find( tags, { name: resource } ) && !parent && !_.isEmpty( resourceDocs ) ) {
 				tags.push( {
 					name: resource,
 					description: resourceDocs.description || ""
@@ -105,6 +105,10 @@ function prepareCachedResponses( meta, hyped ) {
 			actions.forEach( function( action ) {
 				var actionDefinition = resourceDefinition.actions[ action.name ];
 				var docs = actionDefinition.docs || {};
+
+				if ( _.isEmpty( docs ) ) {
+					return;
+				}
 
 				paths[ action.href ] = paths[ action.href ] || {};
 				paths[ action.href ][ action.method.toLowerCase() ] = {
