@@ -1,6 +1,9 @@
 {
   "name": "hyped-swagger-middleware",
   "version": "1.0.0",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
   "description": "Middleware component that hooks into hyped and uses its resources to generate a swagger schema file",
   "main": "src/index.js",
   "scripts": {
