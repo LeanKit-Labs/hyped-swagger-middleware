@@ -6,12 +6,20 @@ var defaultMediaTypes = [ "application/json", "application/hal+json", "applicati
 var swaggerTools = require( "swagger-tools" );
 var swaggerValidator = swaggerTools.specs.v2.validators[ "schema.json" ];
 
-function patchAnyOfNullable( schemaPart ) {
+function processSchema( globalSchemas, schemaPart ) {
 	if ( !_.isPlainObject( schemaPart ) ) {
 		return schemaPart;
 	}
 
 	return _.mapValues( schemaPart, function( val, key ) {
+		var foundSchema;
+		if ( val && val.hasOwnProperty( "$ref" ) && val.$ref[0] !== "#" ) {
+			foundSchema = _.findKey( globalSchemas, { id: val.$ref } );
+			if ( foundSchema ) {
+				val.$ref = "#/definitions/" + foundSchema;
+			}
+		}
+
 		if ( val && val.hasOwnProperty( "anyOf" ) && val.anyOf.length === 2 ) {
 			var nullObj = _.findIndex( val.anyOf, { type: "null" } );
 			if ( nullObj > -1 ) {
@@ -21,14 +29,21 @@ function patchAnyOfNullable( schemaPart ) {
 		}
 
 		if ( _.isPlainObject( val ) ) {
-			return patchAnyOfNullable( val );
+			return processSchema( globalSchemas, val );
 		}
 
 		if ( _.isArray( val ) ) {
-			return _.map( val, patchAnyOfNullable );
+			return _.map( val, processSchema.bind( null, globalSchemas ) );
 		}
 
 		return val;
+	} );
+}
+
+function applySchemas( definitions, schemas ) {
+	_.each( schemas, function( schema, key ) {
+		_.extend( definitions, schema.definitions );
+		definitions[ key ] = _.omit( schema, [ "id", "definitions", "$schema" ] );
 	} );
 }
 
@@ -44,6 +59,7 @@ function prepareCachedResponses( meta, hyped ) {
 	var versions = {};
 
 	Object.keys( hyped.fullOptionModels ).forEach( function( versionKey ) {
+		var globalSchemas = _.cloneDeep( meta.schemas || {} );
 		var paths = {};
 		var response = _.merge( {
 			swagger: "2.0",
@@ -53,7 +69,7 @@ function prepareCachedResponses( meta, hyped ) {
 				contact: {},
 				license: {}
 			}
-		}, meta );
+		}, _.omit( meta, "schemas" ) );
 
 		var links = hyped.fullOptionModels[ versionKey ]._links;
 		var tags = [];
@@ -82,7 +98,7 @@ function prepareCachedResponses( meta, hyped ) {
 
 			if ( resourceDocs.schemas ) {
 				_.each( resourceDocs.schemas, function( schema, key ) {
-					schemas[ key ] = patchAnyOfNullable( _.cloneDeep( schema ) );
+					schemas[ key ] = processSchema( globalSchemas, _.cloneDeep( schema ) );
 				} );
 			}
 
@@ -125,14 +141,12 @@ function prepareCachedResponses( meta, hyped ) {
 			} );
 		} );
 
-		var definitions = {};
-		_.each( schemas, function( schema, key ) {
-			_.extend( definitions, schema.definitions );
-			definitions[ key ] = _.omit( schema, [ "definitions", "id", "$schema" ] );
-		} );
-
 		response.tags = tags;
 		response.paths = paths;
+
+		var definitions = {};
+		applySchemas( definitions, schemas );
+		applySchemas( definitions, globalSchemas );
 		response.definitions = definitions;
 
 		swaggerValidator.options.breakOnFirstError = true;
