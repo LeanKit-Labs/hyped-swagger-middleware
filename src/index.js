@@ -21,10 +21,10 @@ function processSchema( globalSchemas, schemaPart ) {
 			}
 		}
 
-		if ( val && val.hasOwnProperty( "$ref" ) && val.$ref[0] !== "#" ) {
-			foundSchema = _.findKey( globalSchemas, { id: val.$ref } );
+		if ( key === "$ref" && val[0] !== "#" ) {
+			foundSchema = _.findKey( globalSchemas, { id: val } );
 			if ( foundSchema ) {
-				val.$ref = "#/definitions/" + foundSchema;
+				val = "#/definitions/" + foundSchema;
 			}
 		}
 
