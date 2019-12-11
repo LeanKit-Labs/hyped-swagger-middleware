@@ -1,4 +1,4 @@
-module.exports = function( host ) {
+module.exports = function() {
 	return {
 		name: "user",
 		docs: {
