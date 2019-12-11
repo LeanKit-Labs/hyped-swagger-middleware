@@ -37,14 +37,14 @@ var autohost = require( "autohost" );
 var hyped = require( "hyped" )( true, true );
 var swaggerMiddleware = require( "../src/" );
 var host = hyped.createHost( autohost, {
-		resources: path.join( __dirname, "resource" )
-		// regular autohost configuration goes here
-	},
-	function() {
-		host.http.middleware(
-			"/api/swagger/:version/swagger.json",
-			swaggerMiddleware( apiMetadata, hyped )
-		);
-		host.start();
-	}
+	resources: path.join( __dirname, "resource" )
+	// regular autohost configuration goes here
+},
+function() {
+	host.http.middleware(
+		"/api/swagger/:version/swagger.json",
+		swaggerMiddleware( apiMetadata, hyped )
+	);
+	host.start();
+}
 );

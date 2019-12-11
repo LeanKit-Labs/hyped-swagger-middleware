@@ -1,5 +1,4 @@
 var _ = require( "lodash" );
-var path = require( "path" );
 var defaultAccepts = [ "application/json" ];
 var defaultMediaTypes = [ "application/json", "application/hal+json", "application/hal.v1+json" ];
 
@@ -11,7 +10,7 @@ function processSchema( globalSchemas, schemaPart ) {
 		return schemaPart;
 	}
 
-	return _.mapValues( schemaPart, function( val, key ) {
+	return _.mapValues( schemaPart, function( val ) {
 		var foundSchema;
 		if ( val && val.hasOwnProperty( "anyOf" ) && val.anyOf.length === 2 ) {
 			var nullObj = _.findIndex( val.anyOf, { type: "null" } );
@@ -21,7 +20,7 @@ function processSchema( globalSchemas, schemaPart ) {
 			}
 		}
 
-		if ( val && val.hasOwnProperty( "$ref" ) && val.$ref[0] !== "#" ) {
+		if ( val && val.hasOwnProperty( "$ref" ) && val.$ref[ 0 ] !== "#" ) {
 			foundSchema = _.findKey( globalSchemas, { id: val.$ref } );
 			if ( foundSchema ) {
 				val.$ref = "#/definitions/" + foundSchema;
@@ -154,8 +153,8 @@ function prepareCachedResponses( meta, hyped ) {
 		var valid = swaggerValidator.validate( response, "schema.json" );
 
 		if ( !valid ) {
-			console.error( swaggerValidator.lastReport.errors[ 0 ] );
-			process.exit( 1 );
+			console.error( swaggerValidator.lastReport.errors[ 0 ] ); // eslint-disable-line no-console
+			process.exit( 1 ); // eslint-disable-line no-process-exit
 		}
 
 		versions[ versionKey ] = response;
@@ -164,10 +163,11 @@ function prepareCachedResponses( meta, hyped ) {
 	return versions;
 }
 
-var middleware = function( meta, hyped, log ) {
+var NOT_FOUND = 404;
+var middleware = function( meta, hyped ) {
 	var responses = prepareCachedResponses( meta, hyped );
 
-	return function( req, res, next ) {
+	return function( req, res ) {
 		if ( responses.hasOwnProperty( req.params.version ) ) {
 			res.header( {
 				"Access-Control-Allow-Origin": "*",
@@ -176,7 +176,7 @@ var middleware = function( meta, hyped, log ) {
 			} );
 			res.json( responses[ req.params.version ] );
 		} else {
-			res.status( 404 ).json( { message: "Could not find swagger definition for " + req.params.version } );
+			res.status( NOT_FOUND ).json( { message: "Could not find swagger definition for " + req.params.version } );
 		}
 	};
 };
