@@ -1,5 +1,10 @@
 ## 1.0.x
 
+### 1.1.0
+
+* Upgraded to lodash, development updates
+* Added CORS headers to swagger response
+
 ### 1.0.3
 No changes... @Prestaul, says he's sorry.
 
