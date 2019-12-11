@@ -1,6 +1,6 @@
 {
   "name": "hyped-swagger-middleware",
-  "version": "1.0.3",
+  "version": "1.1.0-add-cors-header.0",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
