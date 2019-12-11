@@ -169,6 +169,11 @@ var middleware = function( meta, hyped, log ) {
 
 	return function( req, res, next ) {
 		if ( responses.hasOwnProperty( req.params.version ) ) {
+			res.header( {
+				"Access-Control-Allow-Origin": "*",
+				"Access-Control-Allow-Headers": "X-Requested-With",
+				"Access-Control-Allow-Methods": "OPTIONS"
+			} );
 			res.json( responses[ req.params.version ] );
 		} else {
 			res.status( 404 ).json( { message: "Could not find swagger definition for " + req.params.version } );
